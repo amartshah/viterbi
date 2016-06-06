@@ -3,6 +3,7 @@ import copy
 import guid
 import math
 import os
+import operator
 
 # A couple contants
 CONTINUOUS = 0
@@ -30,6 +31,9 @@ class HMM:
         self.priors = None
         self.emissions = None   #evidence model
         self.transitions = None #transition model
+
+    def listProduct(list):
+        return reduce(operator.mul, list, 1)
 
     def train(self, trainingData, trainingLabels):
         ''' Train the HMM on the fully observed data using MLE '''
@@ -132,12 +136,25 @@ class HMM:
         # prior_draw = self.priors['drawing']
         # prior_text = self.priors['text']
 
-        # transitionModel = self.transitions
-        # evidenceModel = self.emissions
+        transitionModel = self.transitions
+        evidenceModel = self.emissions
 
-        print "label function not yet implemented"
+        V = [{}]
+        total = {}
 
-        return None
+        for x in self.states:
+            V[0][x] = self.priors[x]*listProduct(evidenceModel[x][feature][data[0][feature]] for feature in self.featureNames)
+            total[x]=[x]
+        for y in range(1,len(data)):
+            V.append({})
+            newPath={}
+            for current_state in self.states:
+                probability,mostLikelyState=max((V[y-1][s]*transitionModel[s][current_state]*listProduct(evidenceModel[current_state][feature][data[y][feature]] for feature in self.featureNames),s) for s in self.states)
+                V[y][current_state]=probability
+                newPath[current_state]=total[mostLikelyState]+[current_state]
+            total=newPath
+        probability,mostLikelyState=max((V[len(data)-1][state],state)for state in self.states)
+        return total[mostLikelyState]
     
     def getEmissionProb( self, state, features ):
         ''' Get P(features|state).
@@ -505,8 +522,6 @@ class Stroke:
             prev = p
         return ret
 
-
-
     def sumOfCurvature(self, func=lambda x: x, skip=1):
         ''' Return the normalized sum of curvature for a stroke.
             func is a function to apply to the curvature before summing
@@ -556,5 +571,24 @@ class Stroke:
         return ret / len(self.points)
 
     # You can (and should) define more features here
+
+#Part 1 Viterbi Testing Example
+# weather example from class
+
+states = ['sunny', 'cloudy', 'rainy']
+features = ['groundstate']
+contOrDisc = {'groundstate': 1}
+numVals = {'groundstate': 4}
+h = HMM(states,features,contOrDisc,numVals)
+h.priors = {'sunny': 0.63, 'cloudy': 0.17, 'rainy': 0.20}
+h.emissions = {'sunny':{'groundstate':[0.6, 0.2, 0.15, 0.05]},
+               'cloudy':{'groundstate':[0.25, 0.25, 0.25, 0.25]},
+               'rainy':{'groundstate':[0.05, 0.10, 0.35, 0.5]}}
+h.transitions = {'sunny':{'sunny': 0.5, 'cloudy': 0.25, 'rainy': 0.250},
+                 'cloudy':{'sunny': 0.375, 'cloudy': 0.125, 'rainy': 0.375},
+                 'rainy':{'sunny': 0.125, 'cloudy': 0.675, 'rainy': 0.375}}
+data = [{'groundstate': 0},{'groundstate': 2},{'groundstate': 3}]
+print h.label(data)
+
 
 
