@@ -9,6 +9,11 @@ import operator
 CONTINUOUS = 0
 DISCRETE = 1
 
+hmm = new HMM(['rain','norain'], ['umbrella'], DISCRETE, {'umbrella':2})
+hmm.priors = [0.5,0.5]
+hmm.emissions = {'rain':{'umbrella': [0.9,0.2]}, 'norain': {'umbrella': [0.1,0.8]}}
+hmm.transitions = {'rain':{'rain':0.7, 'norain':0.3}, 'norain':{'rain':0.7,'norain':0.3}}
+
 class HMM:
     ''' Code for a hidden Markov Model '''
 
