@@ -129,18 +129,14 @@ class HMM:
         ''' Find the most likely labels for the sequence of data
             This is an implementation of the Viterbi algorithm  '''
         # You will implement this function
-		prior_draw = self.priors['drawing']
-		prior_text = self.priors['text']
+        # prior_draw = self.priors['drawing']
+        # prior_text = self.priors['text']
 
-        transitionModel = self.transitions
-        evidenceModel = self.emissions
+        # transitionModel = self.transitions
+        # evidenceModel = self.emissions
 
-        
-		
         print "label function not yet implemented"
-		
-		for i in
-		
+
         return None
     
     def getEmissionProb( self, state, features ):
