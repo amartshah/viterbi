@@ -160,7 +160,7 @@ class HMM:
             total=newPath
         probability,mostLikelyState=max((V[len(data)-1][state],state)for state in self.states)
         return total[mostLikelyState]
-    
+
     def getEmissionProb( self, state, features ):
         ''' Get P(features|state).
             Consider each feature independent so
@@ -493,6 +493,40 @@ class StrokeLabeler:
             print "PROBLEM: number of strokes and labels must match"
             print "numStrokes is", len(strokes), "numLabels is", len(labels)
         return strokes, labels
+
+
+    #I added everything from this point on
+    def confusion(self, trueLabels, classifications):
+        '''takes a list of truth labels and a list of labels output 
+        by the classifier for the same set of strokes (in order).'''
+
+        total_TL = len(trueLabels) #calulate how many true labels we have to iterate through
+        #if it is positive then it means it was categorized in the right area of the table
+        #if it is negative then it was categorized incorrectly. Example a drawing being classified as a text
+        drawing_positive = 0
+        drawing_negative = 0
+        text_positive = 0
+        text_negative = 0
+        
+        #should we make sure that trueLabels and classifications have the same lenght? Not sure if we have to do this
+
+        #incremement all variables into correct classiciations
+        for x in range(total_TL):
+            if trueLabels[x] == 'drawing':
+                if classifications[x] == 'drawing'
+                    drawing_positive += 1
+                elif classifications[x] == 'text'
+                    drawing_negative += 1
+            elif trueLabels[x] == 'text':
+                if classifications[x] == 'text'
+                    text_positive += 1
+                elif classifications[x] == 'drawing'
+                    text_negative += 1
+    
+        return {'drawing':{'drawing':drawing_positive,'text':drawing_negative},'text':{'drawing':text_negative,'text':text_positive}}
+        #end result should look like this:
+        #{'drawing': {'drawing': 30, 'text': 10}, 'text': {'drawing': 5, 'text': 20}}
+        #until here
 
 class Stroke:
     ''' A class to represent a stroke (series of xyt points).
