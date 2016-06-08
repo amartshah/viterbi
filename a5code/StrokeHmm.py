@@ -633,16 +633,16 @@ class Stroke:
 
         #iterate through points and determine bounds (rightmost, leftmost, topmost, and bottommost points)
         for p in self.points:
-            #more left than present leftmost
+            #more left than present leftmost (x-coord)
             if p[0] < xl:
                 xl = p[0]
-            #more right than present rightmost
+            #more right than present rightmost (x-coord)
             if p[0] > xr:
                 xr = p[0]
-            #lower than present bottom    
+            #lower than present bottom (y-coord)
             if p[1] < yb:
                 yb = p[1]
-            #higher than present top
+            #higher than present top (y-coord)
             if p[1] > yt:
                 yt = p[1]
 
