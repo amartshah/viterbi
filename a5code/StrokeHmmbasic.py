@@ -206,9 +206,9 @@ class StrokeLabeler:
         #    name to whether it is continuous or discrete
         # numFVals is a dictionary specifying the number of legal values for
         #    each discrete feature
-        self.featureNames = ['length', 'ratio']
-        self.contOrDisc = {'length': DISCRETE, 'ratio': DISCRETE}
-        self.numFVals = { 'length': 2, 'ratio': 2}
+        self.featureNames = ['length']
+        self.contOrDisc = {'length': DISCRETE}
+        self.numFVals = { 'length': 2}
 
     def featurefy( self, strokes ):
         ''' Converts the list of strokes into a list of feature dictionaries
@@ -247,14 +247,7 @@ class StrokeLabeler:
             # above in the contructor: self.featureNames, self.contOrDisc,
             #    self.numFVals (for discrete features only)
 
-            #WE NEED TO TEST BOTH OF THE BELOW TO FIGURE OUT OUR BOUND 
-            ratio = s.getHeightWidthRatio()
-            if ratio < 5:
-                d['ratio'] = 1
-            else:
-                d['ratio'] = 0 
 
-            #can add curvature in prety easily as well
             ret.append(d)  # append the feature dictionary to the list
             
         return ret
@@ -294,8 +287,6 @@ class StrokeLabeler:
             print "Label is", labels[i]
             print "Length is", strokes[i].length()
             print "Curvature is", strokes[i].sumOfCurvature(abs)
-            print "Ratio is", strokes[i].ratio()
-
     
     def labelFile( self, strokeFile, outFile ):
         ''' Label the strokes in the file strokeFile and save the labels
@@ -619,42 +610,6 @@ class Stroke:
         return ret / len(self.points)
 
     # You can (and should) define more features here
-
-    def getHeightWidthRatio(self):
-        '''computes the height:width ratio of the box encompassing the entire drawing or text'''
-
-        #initiate horizontal bounds of the box (left and right most)
-        xl = float("inf")
-        xr = 0
-
-        #initiate vertical bounds of the box (top and bottom)
-        yb = float("inf")
-        yt = 0
-
-        #iterate through points and determine bounds (rightmost, leftmost, topmost, and bottommost points)
-        for p in self.points:
-            #more left than present leftmost
-            if p[0] < xl:
-                xl = p[0]
-            #more right than present rightmost
-            if p[0] > xr:
-                xr = p[0]
-            #lower than present bottom    
-            if p[1] < yb:
-                yb = p[1]
-            #higher than present top
-            if p[1] > yt:
-                yt = p[1]
-
-        #height of bounding box is the difference between top and bottom
-        height = yt - yb
-        #wdith of bounding box is the difference between left and right 
-        width =  xr - xl
-
-        #ratio is the quotient casted as float
-        ratio = float(height/width)
-
-        return ratio
 
 #Part 1 Viterbi Testing Example
 # weather example from class
