@@ -4,6 +4,7 @@ import guid
 import math
 import os
 import operator
+import numpy
 
 # A couple contants
 CONTINUOUS = 0
@@ -222,9 +223,9 @@ class StrokeLabeler:
         #    name to whether it is continuous or discrete
         # numFVals is a dictionary specifying the number of legal values for
         #    each discrete feature
-        self.featureNames = ['length', 'ratio']
-        self.contOrDisc = {'length': DISCRETE, 'ratio': DISCRETE}
-        self.numFVals = { 'length': 2, 'ratio': 2}
+        self.featureNames = ['length', 'ratio', 'curvature']
+        self.contOrDisc = {'length': DISCRETE, 'ratio': DISCRETE, 'curvature':DISCRETE}
+        self.numFVals = { 'length': 2, 'ratio': 2, 'curvature': 2}
 
     def featurefy( self, strokes ):
         ''' Converts the list of strokes into a list of feature dictionaries
@@ -272,6 +273,14 @@ class StrokeLabeler:
             #the bounding box is long
             else:
                 d['ratio'] = 1
+
+            #get curvature with absolute value, skipping 8
+            curvature = s.sumOfCurvature(lambda x:math.fabs(x), 8)
+            if curvature <  .0000047:
+                d['curvature'] = 0
+
+            else:
+                d['curvature'] = 1
 
             #can add curvature in prety easily as well
             ret.append(d)  # append the feature dictionary to the list
