@@ -284,10 +284,13 @@ class StrokeLabeler:
 
             #WE NEED TO TEST BOTH OF THE BELOW TO FIGURE OUT OUR BOUND 
             ratio = s.getHeightWidthRatio()
+            #the bounding box is wide
             if ratio < 1:
-                d['ratio'] = 1
-            else:
                 d['ratio'] = 0
+
+            #the bounding box is long
+            else:
+                d['ratio'] = 1
 
             #can add curvature in prety easily as well
             ret.append(d)  # append the feature dictionary to the list
