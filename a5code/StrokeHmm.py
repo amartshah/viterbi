@@ -177,7 +177,8 @@ class HMM:
         final_path = path[state_chosen]
         print final_path
         return final_path
-        #delete everything below this point
+
+        # # delete everything below this point
         # V = [{}]
         # total = {}
 
@@ -193,6 +194,7 @@ class HMM:
         #         newPath[current_state]=total[mostLikelyState]+[current_state]
         #     total=newPath
         # probability,mostLikelyState=max((V[len(data)-1][state],state)for state in self.states)
+        # print total[mostLikelyState]
         # return total[mostLikelyState]
 
     def getEmissionProb( self, state, features ):
@@ -215,7 +217,6 @@ class HMM:
                 
         return prob
         
-
 
 class StrokeLabeler:
     def __init__(self):
@@ -283,10 +284,10 @@ class StrokeLabeler:
 
             #WE NEED TO TEST BOTH OF THE BELOW TO FIGURE OUT OUR BOUND 
             ratio = s.getHeightWidthRatio()
-            if ratio < 5:
+            if ratio < 1:
                 d['ratio'] = 1
             else:
-                d['ratio'] = 0 
+                d['ratio'] = 0
 
             #can add curvature in prety easily as well
             ret.append(d)  # append the feature dictionary to the list
@@ -328,7 +329,7 @@ class StrokeLabeler:
             print "Label is", labels[i]
             print "Length is", strokes[i].length()
             print "Curvature is", strokes[i].sumOfCurvature(abs)
-            print "Ratio is", strokes[i].ratio()
+            print "Ratio is", strokes[i].getHeightWidthRatio()
 
     
     def labelFile( self, strokeFile, outFile ):
@@ -552,7 +553,6 @@ class StrokeLabeler:
         text_negative = 0
         
         #should we make sure that trueLabels and classifications have the same lenght? Not sure if we have to do this
-
         #incremement all variables into correct classiciations
         for x in range(total_TL):
             if trueLabels[x] == 'drawing':
@@ -565,7 +565,7 @@ class StrokeLabeler:
                     text_positive += 1
                 elif classifications[x] == 'drawing':
                     text_negative += 1
-    
+        print {'drawing':{'drawing':drawing_positive,'text':drawing_negative},'text':{'drawing':text_negative,'text':text_positive}}
         return {'drawing':{'drawing':drawing_positive,'text':drawing_negative},'text':{'drawing':text_negative,'text':text_positive}}
         #end result should look like this:
         #{'drawing': {'drawing': 30, 'text': 10}, 'text': {'drawing': 5, 'text': 20}}
@@ -686,9 +686,14 @@ class Stroke:
         width =  xr - xl
 
         #ratio is the quotient casted as float
-        ratio = float(height/width)
+        if width==0.0:
+            ratio = float(height/.1)
+            return ratio
+
+        ratio = float(height)/float(width)
 
         return ratio
+
 
 #Part 1 Viterbi Testing Example
 # weather example from class
