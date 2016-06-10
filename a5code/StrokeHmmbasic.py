@@ -1,3 +1,8 @@
+# Name: asf408 (Armaan Shah), snk088 (Sonia Nigam), ats545 (Amar Shah)
+# Date: 5/22/16
+# Description: Assignment 5
+# 
+# All group members were present and contributing during all work on this project.
 import xml.dom.minidom
 import copy
 import guid
@@ -649,23 +654,24 @@ class Stroke:
 
    
 
-#Part 1 Viterbi Testing Example
-# weather example from class
+#viterbi test example: weather ex as done in class
 
 states = ['sunny', 'cloudy', 'rainy']
 features = ['groundstate']
-contOrDisc = {'groundstate': 1}
-numVals = {'groundstate': 4}
-h = HMM(states,features,contOrDisc,numVals)
-h.priors = {'sunny': 0.63, 'cloudy': 0.17, 'rainy': 0.20}
-h.emissions = {'sunny':{'groundstate':[0.6, 0.2, 0.15, 0.05]},
-               'cloudy':{'groundstate':[0.25, 0.25, 0.25, 0.25]},
-               'rainy':{'groundstate':[0.05, 0.10, 0.35, 0.5]}}
-h.transitions = {'sunny':{'sunny': 0.5, 'cloudy': 0.25, 'rainy': 0.250},
-                 'cloudy':{'sunny': 0.375, 'cloudy': 0.125, 'rainy': 0.375},
-                 'rainy':{'sunny': 0.125, 'cloudy': 0.675, 'rainy': 0.375}}
+
+continous_discrete = {'groundstate': 1}
+value = {'groundstate': 4}
+
+test_hmm = HMM(states,features,continous_discrete,value)
+
+test_hmm.priors = {'sunny': 0.63, 'cloudy': 0.17, 'rainy': 0.20}
+
+test_hmm.emissions = {'sunny':{'groundstate':[0.6, 0.2, 0.15, 0.05]}, 'cloudy':{'groundstate':[0.25, 0.25, 0.25, 0.25]}, 'rainy':{'groundstate':[0.05, 0.10, 0.35, 0.5]}}
+
+test_hmm.transitions = {'sunny':{'sunny': 0.5, 'cloudy': 0.25, 'rainy': 0.250},'cloudy':{'sunny': 0.375, 'cloudy': 0.125, 'rainy': 0.375}, 'rainy':{'sunny': 0.125, 'cloudy': 0.675, 'rainy': 0.375}}
+
 data = [{'groundstate': 0},{'groundstate': 2},{'groundstate': 3}]
-print h.label(data)
+print test_hmm.label(data)
 
 
 
