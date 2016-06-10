@@ -9,11 +9,6 @@ import operator
 CONTINUOUS = 0
 DISCRETE = 1
 
-hmm = new HMM(['rain','norain'], ['umbrella'], DISCRETE, {'umbrella':2})
-hmm.priors = [0.5,0.5]
-hmm.emissions = {'rain':{'umbrella': [0.9,0.2]}, 'norain': {'umbrella': [0.1,0.8]}}
-hmm.transitions = {'rain':{'rain':0.7, 'norain':0.3}, 'norain':{'rain':0.7,'norain':0.3}}
-
 class HMM:
     ''' Code for a hidden Markov Model '''
 
@@ -141,25 +136,66 @@ class HMM:
         # prior_draw = self.priors['drawing']
         # prior_text = self.priors['text']
 
-        transitionModel = self.transitions
-        evidenceModel = self.emissions
+        transitions = self.transitions
+        evidence = self.emissions
 
-        V = [{}]
-        total = {}
+        vtable = [{}]
+        path = {}
+        i = 0
+        #base case - setting the initial step in viterbi
+        for state in self.states: #look through each hidden state
+            product = 1
+            for feature in self.featureNames:
+                product = product * evidence[state][feature][data[0][feature]] #multiply all possibilities of a feature selected by data in specified hidden state
+            vtable[0][state] = self.priors[state]*product # in the hidden state, set the viterbi inital step to the prior prob
+                                                                        # multiplied by the probability that the first element in the data sequence is
+                                                                        # selected in the current hidden state
+            i = i+1
+            path[state] = [state] 
+        # stepping through each part of data to fill out possible paths for viterbi
+        for step in range(1,len(data)):
+            vtable.append({}) # appending an empty dictionary to represent next column in table of possible paths
+            update_path = {}
 
-        for x in self.states:
-            V[0][x] = self.priors[x]*listProduct(evidenceModel[x][feature][data[0][feature]] for feature in self.featureNames)
-            total[x]=[x]
-        for y in range(1,len(data)):
-            V.append({})
-            newPath={}
-            for current_state in self.states:
-                probability,mostLikelyState=max((V[y-1][s]*transitionModel[s][current_state]*listProduct(evidenceModel[current_state][feature][data[y][feature]] for feature in self.featureNames),s) for s in self.states)
-                V[y][current_state]=probability
-                newPath[current_state]=total[mostLikelyState]+[current_state]
-            total=newPath
-        probability,mostLikelyState=max((V[len(data)-1][state],state)for state in self.states)
-        return total[mostLikelyState]
+            #similar to base case, except probabilities are based on previous parts of vtable
+            for state in self.states:
+                product = 1
+                for feature in self.featureNames:
+                    product = product * evidence[state][feature][data[step][feature]] # creating the probability just based on evidence model that a feature is chosen in state
+
+                evidence_prob = product #this is the just the prob from evidence model (index 0 bc only one item list)
+
+                #doing state loop again in order to account for previous step, comparing all combinations and choosing highest likelihood
+                probability, state_chosen = max((vtable[step-1][s]*transitions[s][state] * evidence_prob,s) for s in self.states) #also returns the state chosen by using optional paramter to find key
+                vtable[step][state] = probability
+                update_path[state] = path[state_chosen] + [state] #this creates a new dictionary with all the updated paths
+            
+            path = update_path #set updated dictionary 
+
+            #to determine the final path find the max of the two final path options
+        probability, state_chosen = max((vtable[step -1][s], s) for s in self.states)
+        final_path = path[state_chosen]
+        print final_path
+        return final_path
+
+        # # delete everything below this point
+        # V = [{}]
+        # total = {}
+
+        # for x in self.states:
+        #     V[0][x] = self.priors[x]*listProduct(evidenceModel[x][feature][data[0][feature]] for feature in self.featureNames)
+        #     total[x]=[x]
+        # for y in range(1,len(data)):
+        #     V.append({})
+        #     newPath={}
+        #     for current_state in self.states:
+        #         probability,mostLikelyState=max((V[y-1][s]*transitionModel[s][current_state]*listProduct(evidenceModel[current_state][feature][data[y][feature]] for feature in self.featureNames),s) for s in self.states)
+        #         V[y][current_state]=probability
+        #         newPath[current_state]=total[mostLikelyState]+[current_state]
+        #     total=newPath
+        # probability,mostLikelyState=max((V[len(data)-1][state],state)for state in self.states)
+        # print total[mostLikelyState]
+        # return total[mostLikelyState]
 
     def getEmissionProb( self, state, features ):
         ''' Get P(features|state).
@@ -181,7 +217,6 @@ class HMM:
                 
         return prob
         
-
 
 class StrokeLabeler:
     def __init__(self):
@@ -248,6 +283,7 @@ class StrokeLabeler:
             #    self.numFVals (for discrete features only)
 
 
+            #can add curvature in prety easily as well
             ret.append(d)  # append the feature dictionary to the list
             
         return ret
@@ -287,6 +323,7 @@ class StrokeLabeler:
             print "Label is", labels[i]
             print "Length is", strokes[i].length()
             print "Curvature is", strokes[i].sumOfCurvature(abs)
+
     
     def labelFile( self, strokeFile, outFile ):
         ''' Label the strokes in the file strokeFile and save the labels
@@ -509,20 +546,19 @@ class StrokeLabeler:
         text_negative = 0
         
         #should we make sure that trueLabels and classifications have the same lenght? Not sure if we have to do this
-
         #incremement all variables into correct classiciations
         for x in range(total_TL):
             if trueLabels[x] == 'drawing':
-                if classifications[x] == 'drawing'
+                if classifications[x] == 'drawing':
                     drawing_positive += 1
-                elif classifications[x] == 'text'
+                elif classifications[x] == 'text':
                     drawing_negative += 1
             elif trueLabels[x] == 'text':
-                if classifications[x] == 'text'
+                if classifications[x] == 'text':
                     text_positive += 1
-                elif classifications[x] == 'drawing'
+                elif classifications[x] == 'drawing':
                     text_negative += 1
-    
+        print {'drawing':{'drawing':drawing_positive,'text':drawing_negative},'text':{'drawing':text_negative,'text':text_positive}}
         return {'drawing':{'drawing':drawing_positive,'text':drawing_negative},'text':{'drawing':text_negative,'text':text_positive}}
         #end result should look like this:
         #{'drawing': {'drawing': 30, 'text': 10}, 'text': {'drawing': 5, 'text': 20}}
@@ -610,6 +646,8 @@ class Stroke:
         return ret / len(self.points)
 
     # You can (and should) define more features here
+
+   
 
 #Part 1 Viterbi Testing Example
 # weather example from class
