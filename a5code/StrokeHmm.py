@@ -39,8 +39,6 @@ class HMM:
         self.emissions = None   #evidence model
         self.transitions = None #transition model
 
-    def listProduct(list):
-        return reduce(operator.mul, list, 1)
 
     def train(self, trainingData, trainingLabels):
         ''' Train the HMM on the fully observed data using MLE '''

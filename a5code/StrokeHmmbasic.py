@@ -37,8 +37,6 @@ class HMM:
         self.emissions = None   #evidence model
         self.transitions = None #transition model
 
-    def listProduct(list):
-        return reduce(operator.mul, list, 1)
 
     def train(self, trainingData, trainingLabels):
         ''' Train the HMM on the fully observed data using MLE '''
@@ -182,25 +180,6 @@ class HMM:
         final_path = path[state_chosen]
         print final_path
         return final_path
-
-        # # delete everything below this point
-        # V = [{}]
-        # total = {}
-
-        # for x in self.states:
-        #     V[0][x] = self.priors[x]*listProduct(evidenceModel[x][feature][data[0][feature]] for feature in self.featureNames)
-        #     total[x]=[x]
-        # for y in range(1,len(data)):
-        #     V.append({})
-        #     newPath={}
-        #     for current_state in self.states:
-        #         probability,mostLikelyState=max((V[y-1][s]*transitionModel[s][current_state]*listProduct(evidenceModel[current_state][feature][data[y][feature]] for feature in self.featureNames),s) for s in self.states)
-        #         V[y][current_state]=probability
-        #         newPath[current_state]=total[mostLikelyState]+[current_state]
-        #     total=newPath
-        # probability,mostLikelyState=max((V[len(data)-1][state],state)for state in self.states)
-        # print total[mostLikelyState]
-        # return total[mostLikelyState]
 
     def getEmissionProb( self, state, features ):
         ''' Get P(features|state).
